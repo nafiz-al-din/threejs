@@ -1,5 +1,8 @@
-//! 01_05
+//! https://www.mathsisfun.com/index.htm >>>> math
+//! 1. Lynda.com - Learning 3D Graphics on the Web with Three.js (2017 ENG) >>>> course
+//! 01_05 >>>> episode
 // console.log(THREE);
+
 //! Creating a Scene
 const scene = new THREE.Scene()
 
@@ -33,18 +36,19 @@ const ring = new THREE.RingGeometry( 6, 4, 30, 20, 4, 6.283185307179586 );
 const ringmat = new THREE.MeshBasicMaterial( { color: 0xffff00, side: THREE.DoubleSide } );
 
 
-const mesh = new THREE.Mesh( box, boxmat );
-// const mesh = new THREE.Mesh( caps, capsmat );
-const mesh2 = new THREE.Mesh( ring, ringmat );
+// const mesh = new THREE.Mesh( box, boxmat );
+const mesh = new THREE.Mesh( caps, capsmat );
+const ringMesh = new THREE.Mesh( ring, ringmat );
 
-mesh.rotation.x = 10
-mesh.rotation.y = 20
-mesh.rotation.z = 90
+// mesh.rotation.x = 10
+// mesh.rotation.y = 20
+// mesh.rotation.z = 90
 
-mesh2.rotation.x = 90
+ringMesh.rotation.x = 90
 
 
 
+// console.log({box, mesh, caps, plane, ring});
 
 
 
@@ -53,8 +57,8 @@ const canvas = document.getElementById('web-gl-canvas')
 
 
 //* configs
-scene.add( mesh );
-scene.add( mesh2 );
+scene.add( ringMesh );
+ringMesh.add( mesh );
 
 renderer.setSize(window.innerWidth, window.innerHeight)
 
@@ -65,11 +69,11 @@ renderer.render( scene, camera )
 // function animate() {
 //     requestAnimationFrame( animate );
 
-//     // mesh.rotation.z += 50
-//     // mesh.rotation.x += 10
+//     mesh.rotation.z += 0.0001
+//     mesh.rotation.x += 0.005
 
-//     // mesh2.rotation.y += 30
-//     // mesh2.rotation.x += 30
+//     ringMesh.rotation.x += 0.14
+//     ringMesh.rotation.y += 0.001
 
 //     renderer.render( scene, camera );
 // };

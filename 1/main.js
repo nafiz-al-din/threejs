@@ -1,6 +1,6 @@
 //! https://www.mathsisfun.com/index.htm >>>> math
 //! 1. Lynda.com - Learning 3D Graphics on the Web with Three.js (2017 ENG) >>>> course
-//! 3. 04_05 >>>> episode
+//! 3. 05_02 >>>> episode
 // console.log(THREE);
 
 const gui = new dat.GUI()

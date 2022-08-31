@@ -1,18 +1,52 @@
 function init() {
 	var scene = new THREE.Scene();
 	var gui = new dat.GUI();
+	var loader = new THREE.TextureLoader();
+	
+	const path = '/images/cubemap';
+	const cubeMapImgs1 = [
+		`${path}/1/px.jpg`,
+		`${path}/1/nx.jpg`,
+		`${path}/1/py.jpg`,
+		`${path}/1/ny.jpg`,
+		`${path}/1/pz.jpg`,
+		`${path}/1/nz.jpg`,
+	];
+	const cubeMapImgs2 = [
+		`${path}/2/posx.jpg`,
+		`${path}/2/negx.jpg`,
+		`${path}/2/posy.jpg`,
+		`${path}/2/negy.jpg`,
+		`${path}/2/posz.jpg`,
+		`${path}/2/negz.jpg`,
+	];
+	const cubeMapImgs3 = [
+		`${path}/3/posx.jpg`,
+		`${path}/3/negx.jpg`,
+		`${path}/3/posy.jpg`,
+		`${path}/3/negy.jpg`,
+		`${path}/3/posz.jpg`,
+		`${path}/3/negz.jpg`,
+	];
+	
+	const imgs = ['concrete.jpg', 'checkerboard.jpg', 'bricks.jpg', 'fingerprints.jpg'];
 
-	// initialize objects
-	var sphereMaterial = getMaterial('phong', 'rgb(255, 0, 0)');
+	var reflectionCube = new THREE.CubeTextureLoader().load(cubeMapImgs3);
+
+	scene.background = reflectionCube;
+
+	//! initialize objects
+	var sphereMaterial = getMaterial('phong', 'rgb(255, 255, 255)');
 	var sphere = getSphere(sphereMaterial, 1, 24);
 
-	var planeMaterial = getMaterial('phong', 'rgb(0, 79, 108)');
-	var plane = getPlane(planeMaterial, 30);
+	var planeMaterial = getMaterial('phong', 'rgb(255, 255, 255)');
+	var plane = getPlane(planeMaterial, 300);
 
-	var lightLeft = getSpotLight(1, 'rgb(255, 220, 180)');
-	var lightRight = getSpotLight(1, 'rgb(255, 220, 180)');
+	var lightLeft = getSpotLight(3, 'rgb(255, 255, 255)');
+	var lightRight = getSpotLight(3, 'rgb(255, 255, 255)');
+	var lightBack = getSpotLight(3, 'rgb(255, 255, 255)');
 
-	// manipulate objects
+	//! manipulate objects
 	sphere.position.y = sphere.geometry.parameters.radius;
 	plane.rotation.x = Math.PI/2;
 
@@ -24,20 +58,81 @@ function init() {
 	lightRight.position.y = 2;
 	lightRight.position.z = -4;
 
-	// manipulate materials
+	lightBack.position.x = 0;
+	lightBack.position.y = 2;
+	lightBack.position.z = 6.6;
+
+	//! manipulate materials
+	if (sphereMaterial.type == "MeshStandardMaterial" && planeMaterial.type == "MeshStandardMaterial") {
+		sphereMaterial.roughness = 0.2;
+		planeMaterial.roughness = 0.4;
+		planeMaterial.metalness = 1;
+	}
+
+	// sphereMaterial.map = loader.load(`/images/${imgs[2]}`);
+	// sphereMaterial.bumpMap = loader.load(`/images/${imgs[2]}`);
+	// sphereMaterial.roughnessMap = loader.load(`/images/${imgs[2]}`);
+	sphereMaterial.envMap = reflectionCube;
+	
+	// var maps0 = ['map', 'bumpMap', 'roughnessMap'];
+
+	// maps0.forEach(mapName => {
+	// 	let texture = sphereMaterial[mapName];
+	// 	texture.wrapS = THREE.RepeatWrapping;
+	// 	texture.wrapT = THREE.RepeatWrapping;
+	// 	texture.repeat.set(1, 1)
+	// });
+
+	
+	planeMaterial.map = loader.load(`/images/${imgs[0]}`);
+	planeMaterial.bumpMap = loader.load(`/images/${imgs[0]}`);
+	planeMaterial.roughnessMap = loader.load(`/images/${imgs[0]}`);
+	planeMaterial.envMap = reflectionCube;
+
+	var maps = ['map', 'bumpMap', 'roughnessMap'];
+
+	maps.forEach(mapName => {
+		let texture = planeMaterial[mapName];
+		texture.wrapS = THREE.RepeatWrapping;
+		texture.wrapT = THREE.RepeatWrapping;
+		texture.repeat.set(15, 15)
+	});
+
+
 
 	//! dat.gui STARTS
-	var folder1 = gui.addFolder('light_1');
+	var folder1 = gui.addFolder('light_left');
 	folder1.add(lightLeft, 'intensity', 0, 10);
 	folder1.add(lightLeft.position, 'x', -5, 15);
 	folder1.add(lightLeft.position, 'y', -5, 15);
 	folder1.add(lightLeft.position, 'z', -5, 15);
     
-	var folder2 = gui.addFolder('light_2');
+	var folder2 = gui.addFolder('light_right');
 	folder2.add(lightRight, 'intensity', 0, 10);
 	folder2.add(lightRight.position, 'x', -5, 15);
 	folder2.add(lightRight.position, 'y', -5, 15);
 	folder2.add(lightRight.position, 'z', -5, 15);
+
+	var folder3 = gui.addFolder('light_back');
+	folder3.add(lightBack, 'intensity', 0, 10);
+	folder3.add(lightBack.position, 'x', -5, 15);
+	folder3.add(lightBack.position, 'y', -5, 15);
+	folder3.add(lightBack.position, 'z', -5, 15);
+
+	var folder4 = gui.addFolder("materials");
+
+	if (sphereMaterial.type == "MeshStandardMaterial" && planeMaterial.type == "MeshStandardMaterial") {
+		folder4.add(sphereMaterial, 'roughness', 0, 1)
+		folder4.add(planeMaterial, 'roughness', 0, 1)
+		folder4.add(sphereMaterial, 'metalness', 0, 1)
+		folder4.add(planeMaterial, 'metalness', 0, 1)
+
+	} else {
+		sphereMaterial.shininess ? folder4.add(sphereMaterial, 'shininess', 1, 1000) : null;
+		planeMaterial.shininess ? folder4.add(planeMaterial, 'shininess', 1, 1000) : null;
+	}
+	folder4.open()
+
 	//! dat.gui ENDS
     
 	// add objects to the scene
@@ -45,6 +140,7 @@ function init() {
 	scene.add(plane);
 	scene.add(lightLeft);
 	scene.add(lightRight);
+	scene.add(lightBack);
 
 	// camera
 	var camera = new THREE.PerspectiveCamera(
@@ -53,9 +149,9 @@ function init() {
 		1, // near clipping plane
 		1000 // far clipping plane
 	);
-	camera.position.z = 7;
-	camera.position.x = -2;
-	camera.position.y = 7;
+	camera.position.z = 10;
+	camera.position.x = -5;
+	camera.position.y = 10;
 	camera.lookAt(new THREE.Vector3(0, 0, 0));
 
 	// renderer
@@ -113,8 +209,8 @@ function getSpotLight(intensity, color,) {
 	light.penumbra = 0.5;
 
 	//Set up shadow properties for the light
-	light.shadow.mapSize.width = 2024;  // default: 512
-	light.shadow.mapSize.height = 2024; // default: 512
+	light.shadow.mapSize.width = 1080;  // default: 512
+	light.shadow.mapSize.height = 1080; // default: 512
 	light.shadow.bias = 0.001;
 
 	return light;
